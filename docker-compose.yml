@@ -4,8 +4,8 @@ services:
     container_name: shortly-postgres
     environment:
       POSTGRES_DB: shortly
-      POSTGRES_USER: shortly
-      POSTGRES_PASSWORD: shortly
+      POSTGRES_USER: sagargupta
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     volumes:

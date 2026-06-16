@@ -6,29 +6,43 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua_parser.Client;
 import ua_parser.Parser;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Parses User-Agent strings into device, browser, and OS information.
- * Uses uap-java with an in-memory LRU cache for performance.
+ * Parses HTTP {@code User-Agent} headers into device, browser, and OS categories.
+ *
+ * <p>Uses the <a href="https://github.com/ua-parser/uap-java">uap-java</a> library
+ * with a regex-based parser. Results are cached in a bounded in-memory
+ * {@link ConcurrentHashMap} (max {@value #MAX_CACHE_SIZE} entries) since the
+ * same UA strings appear frequently.
  */
 @Service
 public class UserAgentParserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserAgentParserService.class);
+
+    /** Maximum number of cached User-Agent parse results. */
     private static final int MAX_CACHE_SIZE = 10_000;
 
     private Parser parser;
     private final Map<String, UAProfile> cache = new ConcurrentHashMap<>();
 
     /**
-     * Holds parsed User-Agent information.
+     * Immutable result of a User-Agent parse.
+     *
+     * @param device  device family (e.g. {@code "iPhone"}, {@code "Spider"})
+     * @param browser browser family (e.g. {@code "Chrome"}, {@code "Safari"})
+     * @param os      operating system family (e.g. {@code "iOS"}, {@code "Android"})
      */
     public record UAProfile(String device, String browser, String os) {
+
+        /** Sentinel value returned when the UA string is blank or unparseable. */
         public static final UAProfile UNKNOWN = new UAProfile("Other", "Other", "Other");
     }
 
+    /** Initialises the ua-parser on application startup. */
     @PostConstruct
     public void init() {
         try {
@@ -41,15 +55,16 @@ public class UserAgentParserService {
     }
 
     /**
-     * Parses a User-Agent string and returns device, browser, OS.
-     * Results are cached for performance.
+     * Parses a User-Agent string into its device, browser, and OS components.
+     *
+     * @param userAgent the raw User-Agent header value (may be null or blank)
+     * @return a {@link UAProfile} with the parsed fields, or {@link UAProfile#UNKNOWN} on failure
      */
     public UAProfile parse(String userAgent) {
         if (userAgent == null || userAgent.isBlank()) {
             return UAProfile.UNKNOWN;
         }
 
-        // Simple cache check
         UAProfile cached = cache.get(userAgent);
         if (cached != null) {
             return cached;
@@ -71,11 +86,9 @@ public class UserAgentParserService {
 
             UAProfile profile = new UAProfile(device, browser, os);
 
-            // Cache with size limit (simple eviction: clear if too large)
             if (cache.size() < MAX_CACHE_SIZE) {
                 cache.put(userAgent, profile);
             } else {
-                // Evict ~10% oldest entries
                 cache.clear();
                 cache.put(userAgent, profile);
             }

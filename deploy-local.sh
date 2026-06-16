@@ -292,7 +292,11 @@ else
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# Keep running until Ctrl+C
+# ── Shutdown ──
 echo ""
-log_info "Press Ctrl+C to stop the application"
-wait "${APP_PID}"
+log_info "Shutting down application (PID: ${APP_PID})..."
+kill ${APP_PID} 2>/dev/null
+wait ${APP_PID} 2>/dev/null
+log_ok "Application stopped"
+
+exit $FAILURES

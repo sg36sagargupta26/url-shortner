@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: url-shortener
+
+  # R2DBC (reactive PostgreSQL)
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/shortly
+    username: shortly
+    password: shortly
+
+  # Flyway (JDBC, blocking — separate connection for migrations)
+  flyway:
+    url: jdbc:postgresql://localhost:5432/shortly
+    user: shortly
+    password: shortly
+    enabled: true
+    locations: classpath:db/migration
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Rate limiting config
+shortly:
+  rate-limit:
+    max-requests: 1
+    window-seconds: 60
+  short-code:
+    length: 7
+
+logging:
+  level:
+    com.shortly: DEBUG
+    org.springframework.data.r2dbc: INFO

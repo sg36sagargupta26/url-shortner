@@ -1,0 +1,22 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/shortly_test
+    username: test
+    password: test
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+shortly:
+  rate-limit:
+    max-requests: 5
+    window-seconds: 10
+  short-code:
+    length: 7
+
+logging:
+  level:
+    com.shortly: DEBUG

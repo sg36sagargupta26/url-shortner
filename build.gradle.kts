@@ -46,6 +46,7 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.testcontainers:testcontainers:1.20.2")
     testImplementation("org.testcontainers:junit-jupiter:1.20.2")
     testImplementation("org.testcontainers:postgresql:1.20.2")
@@ -54,7 +55,6 @@ dependencies {
 tasks.withType<Javadoc> {
     (options as StandardJavadocDocletOptions).apply {
         addBooleanOption("Xdoclint:all,-missing", true)
-        quiet()
     }
 }
 

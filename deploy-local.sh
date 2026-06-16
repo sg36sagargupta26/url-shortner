@@ -210,7 +210,8 @@ if [ -n "$SHORT_CODE" ] && [ "${#SHORT_CODE}" -eq 7 ]; then
 else
     log_error "Failed to create short link"
     log_error "Response: ${CREATE_RESPONSE}"
-    FAILURES=$((FAILURES + 1))
+    log_error "Cannot continue — shortCode is missing. Aborting."
+    exit 1
 fi
 
 # 8.3 Redirect

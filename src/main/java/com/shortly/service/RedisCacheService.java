@@ -50,12 +50,14 @@ public class RedisCacheService {
      * @param url           the original URL
      * @param redirectType  the HTTP redirect type ({@code "301"} or {@code "302"})
      * @param ttlSeconds    time-to-live in seconds for both the hash and its expiry
+     * @param linkId        the database ID of the link (stored for analytics correlation)
      * @return a Mono emitting {@code true} once the hash is stored and TTL set
      */
     public Mono<Boolean> cacheLink(String shortCode, String url, String redirectType,
-                                    long ttlSeconds) {
+                                    long ttlSeconds, Long linkId) {
         String key = SHORTLINK_PREFIX + shortCode;
         Map<String, String> fields = new HashMap<>();
+        fields.put("id", linkId != null ? linkId.toString() : "");
         fields.put("url", url);
         fields.put("redirect_type", redirectType);
         fields.put("expires_at", String.valueOf(System.currentTimeMillis() / 1000 + ttlSeconds));

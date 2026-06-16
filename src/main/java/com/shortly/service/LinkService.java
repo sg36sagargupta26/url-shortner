@@ -70,7 +70,8 @@ public class LinkService {
                                     saved.getShortCode(),
                                     saved.getOriginalUrl(),
                                     saved.getRedirectType(),
-                                    ttl.getSeconds()
+                                    ttl.getSeconds(),
+                                    saved.getId()
                             ).thenReturn(saved));
                 });
     }
@@ -94,6 +95,11 @@ public class LinkService {
                             .expiresAt(Instant.ofEpochSecond(
                                     Long.parseLong(fields.get("expires_at").toString())))
                             .build();
+                    // Restore the DB ID from Redis cache (stored for analytics)
+                    String idStr = fields.get("id") != null ? fields.get("id").toString() : "";
+                    if (!idStr.isBlank()) {
+                        link.setId(Long.parseLong(idStr));
+                    }
                     return Mono.just(link);
                 })
                 .switchIfEmpty(
@@ -106,7 +112,8 @@ public class LinkService {
                                                 link.getShortCode(),
                                                 link.getOriginalUrl(),
                                                 link.getRedirectType(),
-                                                remainingTtl
+                                                remainingTtl,
+                                                link.getId()
                                         ).thenReturn(link);
                                     }
                                     return Mono.just(link);

@@ -250,9 +250,11 @@ if [ "$ANALYTICS_PASS" = false ]; then
     FAILURES=$((FAILURES + 1))
 fi
 
-# 8.5 Rate limiting
+# 8.5 Rate limiting (wait for window reset first, then rapid-fire test)
 echo ""
-log_info "Test 5: Rate limiting (2 rapid requests → second should be 429)"
+log_info "Test 5: Rate limiting — waiting for rate limit window to reset (60s)..."
+sleep 61
+log_info "Sending 2 rapid requests — first should be 201, second 429"
 R1=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${BASE_URL}/api/v1/links" \
     -H "Content-Type: application/json" \
     -d '{"url":"https://example.com/rate-test"}')

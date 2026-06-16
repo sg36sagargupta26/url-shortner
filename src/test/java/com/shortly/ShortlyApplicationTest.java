@@ -1,6 +1,7 @@
 package com.shortly;
 
 import com.shortly.model.Link;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,6 +53,12 @@ class ShortlyApplicationTest {
 
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379).toString());
+    }
+
+    @AfterAll
+    static void tearDown() {
+        postgres.stop();
+        redis.stop();
     }
 
     @Autowired

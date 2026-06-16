@@ -221,20 +221,32 @@ REDIRECT_LOCATION=$(curl -s -o /dev/null -w "%{redirect_url}" "${BASE_URL}/${SHO
 
 if [ "$REDIRECT_STATUS" = "302" ] && [ "$REDIRECT_LOCATION" = "https://example.com/hello-world" ]; then
     log_ok "Redirect works: ${REDIRECT_STATUS} → ${REDIRECT_LOCATION}"
+    log_info "(click recorded asynchronously — waiting for counters to update...)"
 else
     log_error "Redirect failed: status=${REDIRECT_STATUS}, location=${REDIRECT_LOCATION}"
     FAILURES=$((FAILURES + 1))
 fi
 
-# 8.4 Analytics
+# 8.4 Analytics (retry — click recording is async)
 echo ""
 log_info "Test 4: Analytics"
-ANALYTICS=$(curl -s "${BASE_URL}/api/v1/links/${SHORT_CODE}/analytics")
-if echo "$ANALYTICS" | grep -q '"totalClicks"'; then
-    TOTAL_CLICKS=$(echo "$ANALYTICS" | grep -oE '"totalClicks":[0-9]+' | cut -d: -f2)
-    log_ok "Analytics available: totalClicks=${TOTAL_CLICKS}"
-else
-    log_error "Analytics failed: ${ANALYTICS}"
+ANALYTICS_PASS=false
+for attempt in $(seq 1 10); do
+    ANALYTICS=$(curl -s "${BASE_URL}/api/v1/links/${SHORT_CODE}/analytics")
+    if echo "$ANALYTICS" | grep -q '"totalClicks"'; then
+        TOTAL_CLICKS=$(echo "$ANALYTICS" | grep -oE '"totalClicks":[0-9]+' | cut -d: -f2)
+        UNIQUE_VISITORS=$(echo "$ANALYTICS" | grep -oE '"uniqueVisitors":[0-9]+' | cut -d: -f2)
+        if [ "${TOTAL_CLICKS}" -gt 0 ] 2>/dev/null; then
+            log_ok "Analytics: totalClicks=${TOTAL_CLICKS}, uniqueVisitors=${UNIQUE_VISITORS} (attempt ${attempt})"
+            ANALYTICS_PASS=true
+            break
+        fi
+    fi
+    sleep 0.5
+done
+
+if [ "$ANALYTICS_PASS" = false ]; then
+    log_error "Analytics returned 0 clicks after 10 retries (async processing may be slow)"
     FAILURES=$((FAILURES + 1))
 fi
 

@@ -1,9 +1,11 @@
 package com.shortly.controller;
 
+import com.shortly.dto.AnalyticsResponse;
 import com.shortly.dto.CreateLinkRequest;
 import com.shortly.dto.CreateLinkResponse;
 import com.shortly.dto.ErrorResponse;
 import com.shortly.model.Link;
+import com.shortly.service.AnalyticsService;
 import com.shortly.service.LinkService;
 import com.shortly.service.RateLimiterService;
 import jakarta.validation.Valid;
@@ -15,11 +17,12 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 
 /**
- * REST controller for creating shortened URLs.
+ * REST controller for creating shortened URLs and fetching analytics.
  *
- * <p>Endpoint:
+ * <p>Endpoints:
  * <ul>
  *   <li>{@code POST /api/v1/links} — create a new shortened link</li>
+ *   <li>{@code GET /api/v1/links/{shortCode}/analytics} — get link analytics</li>
  * </ul>
  */
 @RestController
@@ -28,14 +31,19 @@ public class LinkController {
 
     private final LinkService linkService;
     private final RateLimiterService rateLimiterService;
+    private final AnalyticsService analyticsService;
 
     /**
      * @param linkService        the link creation/resolution service
      * @param rateLimiterService the IP-based rate limiter
+     * @param analyticsService   the analytics aggregation service
      */
-    public LinkController(LinkService linkService, RateLimiterService rateLimiterService) {
+    public LinkController(LinkService linkService,
+                          RateLimiterService rateLimiterService,
+                          AnalyticsService analyticsService) {
         this.linkService = linkService;
         this.rateLimiterService = rateLimiterService;
+        this.analyticsService = analyticsService;
     }
 
     /**
@@ -57,7 +65,6 @@ public class LinkController {
             @Valid @RequestBody CreateLinkRequest request,
             @RequestHeader(value = "X-Forwarded-For", defaultValue = "127.0.0.1") String clientIp) {
 
-        // Extract the originating IP (first in the chain if multiple proxies)
         String ip = clientIp.contains(",") ? clientIp.split(",")[0].trim() : clientIp.trim();
 
         return rateLimiterService.isAllowed(ip)
@@ -81,5 +88,30 @@ public class LinkController {
                                         .body(response);
                             });
                 });
+    }
+
+    /**
+     * Returns analytics for a link, merging real-time Redis counters with
+     * historical daily rollups from PostgreSQL.
+     *
+     * @param shortCode the link's short code
+     * @return HTTP 200 with the analytics payload, or 404 if the link is not found
+     */
+    @GetMapping("/{shortCode}/analytics")
+    public Mono<ResponseEntity<?>> getAnalytics(@PathVariable String shortCode) {
+        return linkService.resolveLink(shortCode)
+                .flatMap(link -> linkService.isActive(link)
+                        .flatMap(active -> {
+                            if (!active) {
+                                return Mono.just(ResponseEntity.status(HttpStatus.GONE)
+                                        .body(ErrorResponse.expired("This link has expired.",
+                                                link.getExpiresAt())));
+                            }
+                            return analyticsService.getAnalytics(link)
+                                    .<ResponseEntity<?>>map(ResponseEntity::ok);
+                        })
+                )
+                .switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ErrorResponse.notFound("Short code not found: " + shortCode))));
     }
 }

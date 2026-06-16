@@ -98,48 +98,30 @@ public class Click {
 
     // ── Getters / Setters ──
 
-    /** @return the auto-generated primary key */
     public Long getId() { return id; }
-    /** @param id the primary key */
     public void setId(Long id) { this.id = id; }
 
-    /** @return the ID of the associated link */
     public Long getLinkId() { return linkId; }
-    /** @param linkId the associated link ID */
     public void setLinkId(Long linkId) { this.linkId = linkId; }
 
-    /** @return the click timestamp */
     public Instant getClickedAt() { return clickedAt; }
-    /** @param clickedAt the click timestamp */
     public void setClickedAt(Instant clickedAt) { this.clickedAt = clickedAt; }
 
-    /** @return the hashed visitor IP */
     public String getIpHash() { return ipHash; }
-    /** @param ipHash the hashed visitor IP */
     public void setIpHash(String ipHash) { this.ipHash = ipHash; }
 
-    /** @return the ISO country code */
     public String getCountry() { return country; }
-    /** @param country the ISO country code */
     public void setCountry(String country) { this.country = country; }
 
-    /** @return the city name */
     public String getCity() { return city; }
-    /** @param city the city name */
     public void setCity(String city) { this.city = city; }
 
-    /** @return the raw User-Agent string */
     public String getUserAgent() { return userAgent; }
-    /** @param userAgent the raw User-Agent string */
     public void setUserAgent(String userAgent) { this.userAgent = userAgent; }
 
-    /** @return the raw Referer header */
     public String getReferrer() { return referrer; }
-    /** @param referrer the raw Referer header */
     public void setReferrer(String referrer) { this.referrer = referrer; }
 
-    /** @return the JSON metadata string */
     public String getMetadata() { return metadata; }
-    /** @param metadata the JSON metadata string */
     public void setMetadata(String metadata) { this.metadata = metadata; }
 }

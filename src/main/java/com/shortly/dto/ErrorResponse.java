@@ -20,27 +20,55 @@ public record ErrorResponse(
         Instant expiredAt
 ) {
 
-    /** Creates a generic error response. */
+    /**
+     * Creates a generic error response.
+     *
+     * @param error   a machine-readable error code
+     * @param message a human-readable description
+     * @return a new error response
+     */
     public static ErrorResponse of(String error, String message) {
         return new ErrorResponse(error, message, null, null);
     }
 
-    /** Creates a rate-limit error with retry-after header. */
+    /**
+     * Creates a rate-limit error with a suggested retry delay.
+     *
+     * @param message           a human-readable description
+     * @param retryAfterSeconds suggested seconds to wait before retrying
+     * @return a new rate-limit error response
+     */
     public static ErrorResponse rateLimited(String message, int retryAfterSeconds) {
         return new ErrorResponse("rate_limited", message, retryAfterSeconds, null);
     }
 
-    /** Creates an expired-link error. */
+    /**
+     * Creates an expired-link error.
+     *
+     * @param message   a human-readable description
+     * @param expiredAt the expiry timestamp of the link
+     * @return a new expired-link error response
+     */
     public static ErrorResponse expired(String message, Instant expiredAt) {
         return new ErrorResponse("link_expired", message, null, expiredAt);
     }
 
-    /** Creates a not-found error. */
+    /**
+     * Creates a not-found error.
+     *
+     * @param message a human-readable description
+     * @return a new not-found error response
+     */
     public static ErrorResponse notFound(String message) {
         return new ErrorResponse("not_found", message, null, null);
     }
 
-    /** Creates a validation error. */
+    /**
+     * Creates a validation error.
+     *
+     * @param message a human-readable description
+     * @return a new validation error response
+     */
     public static ErrorResponse validationError(String message) {
         return new ErrorResponse("validation_error", message, null, null);
     }

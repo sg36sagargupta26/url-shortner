@@ -29,12 +29,19 @@ public record AnalyticsResponse(
 ) {
 
     /**
-     * A single category count entry (e.g. country="US", count=5000).
+     * A single category count entry.
+     *
+     * @param key   the category name (e.g. {@code "US"} or {@code "Chrome"})
+     * @param count the number of clicks in this category
      */
     public record CategoryCount(String key, long count) {}
 
     /**
      * A single day's click counts.
+     *
+     * @param date   the ISO date string (e.g. {@code "2026-06-16"})
+     * @param clicks total clicks for the day
+     * @param unique estimated unique visitors for the day
      */
     public record DailyBreakdown(String date, long clicks, long unique) {}
 }

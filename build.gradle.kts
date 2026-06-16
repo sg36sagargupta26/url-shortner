@@ -51,6 +51,13 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.20.2")
 }
 
+tasks.withType<Javadoc> {
+    (options as StandardJavadocDocletOptions).apply {
+        addBooleanOption("Xdoclint:all,-missing", true)
+        quiet()
+    }
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }

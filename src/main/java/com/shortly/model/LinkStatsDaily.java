@@ -101,48 +101,30 @@ public class LinkStatsDaily {
 
     // ── Getters / Setters ──
 
-    /** @return the link ID */
     public Long getLinkId() { return linkId; }
-    /** @param linkId the link ID */
     public void setLinkId(Long linkId) { this.linkId = linkId; }
 
-    /** @return the stats date */
     public LocalDate getDate() { return date; }
-    /** @param date the stats date */
     public void setDate(LocalDate date) { this.date = date; }
 
-    /** @return total clicks for the day */
     public Long getTotalClicks() { return totalClicks; }
-    /** @param totalClicks total clicks */
     public void setTotalClicks(Long totalClicks) { this.totalClicks = totalClicks; }
 
-    /** @return estimated unique visitors */
     public Long getUniqueVisitors() { return uniqueVisitors; }
-    /** @param uniqueVisitors unique visitors */
     public void setUniqueVisitors(Long uniqueVisitors) { this.uniqueVisitors = uniqueVisitors; }
 
-    /** @return JSON array of country breakdown */
     public String getCountryBreakdown() { return countryBreakdown; }
-    /** @param countryBreakdown JSON country breakdown */
     public void setCountryBreakdown(String countryBreakdown) { this.countryBreakdown = countryBreakdown; }
 
-    /** @return JSON array of device breakdown */
     public String getDeviceBreakdown() { return deviceBreakdown; }
-    /** @param deviceBreakdown JSON device breakdown */
     public void setDeviceBreakdown(String deviceBreakdown) { this.deviceBreakdown = deviceBreakdown; }
 
-    /** @return JSON array of browser breakdown */
     public String getBrowserBreakdown() { return browserBreakdown; }
-    /** @param browserBreakdown JSON browser breakdown */
     public void setBrowserBreakdown(String browserBreakdown) { this.browserBreakdown = browserBreakdown; }
 
-    /** @return JSON array of OS breakdown */
     public String getOsBreakdown() { return osBreakdown; }
-    /** @param osBreakdown JSON OS breakdown */
     public void setOsBreakdown(String osBreakdown) { this.osBreakdown = osBreakdown; }
 
-    /** @return JSON array of referrer breakdown */
     public String getReferrerBreakdown() { return referrerBreakdown; }
-    /** @param referrerBreakdown JSON referrer breakdown */
     public void setReferrerBreakdown(String referrerBreakdown) { this.referrerBreakdown = referrerBreakdown; }
 }
